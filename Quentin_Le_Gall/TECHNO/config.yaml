@@ -1,0 +1,10 @@
+model:
+  n_latent  : 6
+  ratios :
+  - 2 
+  - 2 
+  - 2 
+  model_name : null
+
+train:
+  lr : 0.001
