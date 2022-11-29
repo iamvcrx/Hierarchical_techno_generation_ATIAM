@@ -79,8 +79,9 @@ target/
 
 # Data 
 data/
-Victor BIGAND/data
-Victor BIGAND/techno_resampled.dat
+Victor BIGAND/Biblio/
+Victor BIGAND/MNIST/data
+Victor BIGAND/TECHNO/techno_resampled.dat
 runs
 
 # IPython
