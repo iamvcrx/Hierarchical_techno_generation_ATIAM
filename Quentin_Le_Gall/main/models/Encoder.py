@@ -18,28 +18,28 @@ class Encoder(nn.Module):
 
         modules = nn.Sequential()
         # Build Encoder
-        for i,ratio in enumerate(ratios):
+        for i,ratio in enumerate(self.ratios):
             modules.append(
                     nn.Conv1d(in_channels, 
-                              out_channels=channel_size[i],
+                              out_channels=self.channel_size[i],
                               kernel_size= (2*ratio)+1, 
                               stride = ratio, 
                               padding  = ratio))
             modules.append(
-                    nn.BatchNorm1d(channel_size[i]))
+                    nn.BatchNorm1d(self.channel_size[i]))
             modules.append(
                     nn.LeakyReLU())
             
-            in_channels = channel_size[i]
+            in_channels = self.channel_size[i]
 
         self.encoder = modules
         
         self.fc_mu = nn.Sequential(
-            nn.Conv1d(channel_size[-1], latent_dim,kernel_size = 9,stride=1,padding=4)
+            nn.Conv1d(self.channel_size[-1], self.latent_dim,kernel_size = 9,stride=1,padding=4)
             )
 
         self.fc_var = nn.Sequential(
-            nn.Conv1d(channel_size[-1], latent_dim,kernel_size = 9,stride=1,padding=4), 
+            nn.Conv1d(self.channel_size[-1], self.latent_dim,kernel_size = 9,stride=1,padding=4), 
             nn.Softplus()
             )
 

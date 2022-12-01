@@ -1,6 +1,7 @@
 from torch import nn
 
 
+
 class Decoder(nn.Module):
     def __init__(self,
                  in_channels: int,
@@ -13,57 +14,59 @@ class Decoder(nn.Module):
         self.latent_dim = latent_dim
         self.ratios = ratios
         self.channel_size = channel_size
-
+        self.in_channels = in_channels
 
 
         modules = nn.Sequential()
-        self.decoder_input = nn.Conv1d(channel_size[-1],
-                                       channel_size[-1],
+        self.decoder_input = nn.Conv1d(self.latent_dim,
+                                       self.channel_size[-1],
                                        kernel_size=9,
                                        stride=1,
                                        padding=4)
 
-        channel_size.reverse()
-        ratios.reverse()
+        self.channel_size.reverse()
+        self.ratios.reverse()
         # Build Encoder
-        for i in range(len(channel_size) - 1):
+        for i in range(len(self.channel_size) - 1):
             modules.append(
-                    nn.ConvTranspose1d(channel_size[i],
-                                       channel_size[i + 1],
-                                       kernel_size=(ratios[i]*2)+1,
-                                       stride = ratios[i],
-                                       padding=ratios[i]))
+                    nn.ConvTranspose1d(self.channel_size[i],
+                                       self.channel_size[i + 1],
+                                       kernel_size = (self.ratios[i]*2)+1,
+                                       stride = self.ratios[i],
+                                       padding = self.ratios[i],
+                                       output_padding = self.ratios[i]-1))
             modules.append(
                     nn.LeakyReLU())
             modules.append(
-                    nn.Conv1d(channel_size[i + 1],
-                              channel_size[i + 1],
-                              kernel_size=(ratios[i]*2)+1,
+                    nn.Conv1d(self.channel_size[i + 1],
+                              self.channel_size[i + 1],
+                              kernel_size=(self.ratios[i]*2)+1,
                               stride = 1,
-                              padding=ratios[i]))
+                              padding=self.ratios[i]))
             modules.append(
-                    nn.BatchNorm1d(channel_size[i + 1]))
+                    nn.BatchNorm1d(self.channel_size[i + 1]))
             modules.append(
                     nn.LeakyReLU())
             
         self.decoder = modules
-
+        
         self.final_layer = nn.Sequential(
-                            nn.ConvTranspose1d(channel_size[-1],
-                                               in_channels,
-                                               kernel_size=(2*ratios[-1])+1,
-                                               stride=ratios[-1],
-                                               padding=ratios[-1]),
-                            nn.BatchNorm1d(channel_size[-1]),
+                            nn.ConvTranspose1d(self.channel_size[-1],
+                                               self.in_channels,
+                                               kernel_size=(2*self.ratios[-1])+1,
+                                               stride=self.ratios[-1],
+                                               padding=self.ratios[-1],
+                                               output_padding = self.ratios[-1]-1),
                             nn.LeakyReLU(),
-                            nn.Conv1d(in_channels, 
-                                      in_channels,
-                                      kernel_size= (2*ratios[-1])+1,
+                            nn.Conv1d(self.in_channels, 
+                                      self.in_channels,
+                                      kernel_size= (2*self.ratios[-1])+1,
                                       stride = 1,
-                                      padding = ratios[-1]),
+                                      padding = self.ratios[-1]),
+                            nn.BatchNorm1d(self.in_channels),
                             nn.Tanh())
 
-
+        
     def forward(self, input):
         result = self.decoder_input(input)
         result = self.decoder(result)
