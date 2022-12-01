@@ -5,7 +5,7 @@ import dataset.Techno_Dataset as dataset
 import models.Encoder
 import models.Decoder
 import models.VAE_raw
-
+import train.Train
 
 
 # Définit le device sur lequel on va train
@@ -19,7 +19,7 @@ train_loader,valid_loader = dataset.Create_Dataset(dataset_dir="Quentin_Le_Gall/
 
 # Création session tensorboard et save de la config
 checkpoint = f"{main_config.vae_raw.model_name}"
-writer = SummaryWriter('runs/' + checkpoint)
+writer = SummaryWriter('Quentin_Le_Gall/main/runs/' + checkpoint)
 
 
 writer.add_text('VAE_raw_parameters', str(main_config.vae_raw))
@@ -33,12 +33,22 @@ writer.add_text('Dataset_config', str(main_config.dataset))
 #config.save_config(main_config , config_name)
 
 
-encoder = models.Encoder.Encoder(main_config.vae_raw.in_channels,main_config.vae_raw.n_latent,main_config.vae_raw.ratios,main_config.vae_raw.channel_size)
-decoder = models.Decoder.Decoder(main_config.vae_raw.in_channels,main_config.vae_raw.n_latent,main_config.vae_raw.ratios,main_config.vae_raw.channel_size)
-model = models.VAE_raw.VAE_raw(encoder,decoder)
+encoder = models.Encoder.Encoder(main_config.vae_raw.in_channels,main_config.vae_raw.n_latent,main_config.vae_raw.ratios,main_config.vae_raw.channel_size).to(device)
+decoder = models.Decoder.Decoder(main_config.vae_raw.in_channels,main_config.vae_raw.n_latent,main_config.vae_raw.ratios,main_config.vae_raw.channel_size).to(device)
+model = models.VAE_raw.VAE_raw(encoder,decoder).to(device)
 
 
+VAE_train = train.Train.train_VAE(train_loader,
+                                  model,
+                                  writer,
+                                  main_config.vae_raw.n_latent,
+                                  main_config.train.w,
+                                  main_config.train.lr,
+                                  main_config.train.n_fft_l,
+                                  main_config.train.beta,
+                                  main_config.vae_raw.model_name,
+                                  main_config.train.epochs,
+                                  main_config.train.save_ckpt)
 
-
-
+VAE_train.train_step()
 

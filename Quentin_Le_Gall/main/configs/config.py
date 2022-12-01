@@ -21,7 +21,10 @@ class Dataset(BaseModel):
 class Train(BaseModel):
     lr: float
     beta: float = 0.1
-    n_fft: list = [2048,1024,512,256]
+    n_fft_l: list = [2048,1024,512,256]
+    w: str = "Hamming"
+    epochs: int 
+    save_ckpt: int = 0
 
     
 

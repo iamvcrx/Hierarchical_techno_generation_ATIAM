@@ -15,14 +15,17 @@ vae_raw:
 
 dataset:
   batch_size: 32
-  valid_ratio: 0.2
+  valid_ratio: 0.99
   num_thread: 0
 
 train:
   lr : 0.001
   beta : 0.1
-  n_fft : 
+  n_fft_l : 
   - 2048
   - 1024
   - 512
   - 256
+  w : "Hamming"
+  epochs: 10
+  save_ckpt: 0
