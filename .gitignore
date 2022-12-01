@@ -135,3 +135,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 Théo NGUYEN/helper_plot.py
+
+Quentin_Le_Gall/main/dataset/techno_resampled.dat
+Quentin_Le_Gall/main/Debuger.ipynb
+Quentin_Le_Gall/main/Test.py
