@@ -1,0 +1,28 @@
+vae_raw:
+  in_channels:  1
+  n_latent  : 128
+  ratios :
+  - 4 
+  - 4
+  - 4
+  - 4
+  channel_size: 
+  - 16
+  - 32
+  - 64
+  - 128
+  model_name : "VAE_raw"
+
+dataset:
+  batch_size: 32
+  valid_ratio: 0.2
+  num_thread: 0
+
+train:
+  lr : 0.001
+  beta : 0.1
+  n_fft : 
+  - 2048
+  - 1024
+  - 512
+  - 256
