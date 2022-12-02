@@ -5,7 +5,7 @@ from train.Spectral_Loss_Complex import Spectral_Loss
 
 
 class train_VAE(nn.Module):
-    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt): #, add_loss, add_figure
+    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main): #, add_loss, add_figure
         super(train_VAE, self).__init__()
 
         self.w = w
@@ -14,7 +14,8 @@ class train_VAE(nn.Module):
         self.train_loader = train_loader
         self.model = model
         self.lr = lr
-        self.trained_model_path = f"../Quentin/main/trained_models/{model_name}.pt"
+        self.path_main = path_main
+        self.trained_model_path = f"{self.path_main}/trained_models/{model_name}.pt"
         self.writer = writer
         self.num_epochs = num_epochs
         self.latent_dim = latent_dim
@@ -60,7 +61,7 @@ class train_VAE(nn.Module):
         print("Optimizer, ok")
 
         for epoch in range(start_epoch, start_epoch + self.num_epochs):
-            
+            print(epoch)
             loss = torch.Tensor([0]).to(device)
             kl_div = torch.Tensor([0]).to(device)
             recons_loss = torch.Tensor([0]).to(device)
