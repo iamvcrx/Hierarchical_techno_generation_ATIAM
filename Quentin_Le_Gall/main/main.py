@@ -33,8 +33,16 @@ config_name = f"{config_path}/{main_config.vae_raw.model_name}_train_config.yaml
 config.save_config(main_config , config_name)
 
 
-encoder = models.Encoder.Encoder(main_config.vae_raw.in_channels,main_config.vae_raw.n_latent,main_config.vae_raw.ratios,main_config.vae_raw.channel_size).to(device)
-decoder = models.Decoder.Decoder(main_config.vae_raw.in_channels,main_config.vae_raw.n_latent,main_config.vae_raw.ratios,main_config.vae_raw.channel_size).to(device)
+encoder = models.Encoder.Encoder(main_config.vae_raw.in_channels,
+                                 main_config.vae_raw.n_latent,
+                                 main_config.vae_raw.ratios,
+                                 main_config.vae_raw.channel_size).to(device)
+
+decoder = models.Decoder.Decoder(main_config.vae_raw.in_channels,
+                                 main_config.vae_raw.n_latent,
+                                 main_config.vae_raw.ratios,
+                                 main_config.vae_raw.channel_size).to(device)
+                                 
 model = models.VAE_raw.VAE_raw(encoder,decoder).to(device)
 
 
@@ -49,7 +57,8 @@ VAE_train = train.Train.train_VAE(train_loader,
                                   main_config.vae_raw.model_name,
                                   main_config.train.epochs,
                                   main_config.train.save_ckpt,
-                                  path_main=path_main)
+                                  path_main=path_main,
+                                  add_figure_sound=main_config.train.add_fig_sound)
 
 VAE_train.train_step()
 

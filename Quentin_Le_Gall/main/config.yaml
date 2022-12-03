@@ -2,25 +2,31 @@ vae_raw:
   in_channels:  1
   n_latent  : 128
   ratios :
-  - 4 
+  - 2
+  - 2
+  - 2
+  - 2
   - 4
   - 4
-  - 4
+  - 2
   channel_size: 
+  - 8
   - 16
   - 32
   - 64
   - 128
-  model_name : "VAE_raw"
+  - 256
+  - 512
+  model_name : "Run test visu librosa 3"
 
 dataset:
-  batch_size: 32
+  batch_size: 64
   valid_ratio: 0.99
   num_thread: 0
 
 train:
-  lr : 0.001
-  beta : 0.1
+  lr : 0.0001
+  beta : 0.3
   n_fft_l : 
   - 2048
   - 1024
@@ -28,4 +34,5 @@ train:
   - 256
   w : "Hamming"
   epochs: 10
-  save_ckpt: 0
+  save_ckpt: 5
+  add_fig_sound: 5

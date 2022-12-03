@@ -24,7 +24,8 @@ class Train(BaseModel):
     n_fft_l: list = [2048,1024,512,256]
     w: str = "Hamming"
     epochs: int 
-    save_ckpt: int = 0
+    save_ckpt: int = 5
+    add_fig_sound: int = 5
 
     
 
