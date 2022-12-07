@@ -1,25 +1,33 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
-from configs import config
+
+# Import des fichiers du modele
+import configs.config
 import dataset.Techno_Dataset as dataset
 import models.Encoder
 import models.Decoder
 import models.VAE_raw
 import train.Train
 
-path_main = "."
-# Définit le device sur lequel on va train
+
+############################################################# A MODIF #########################
+path_main = "/slow-1/atiam/hierarchical_vae/Quentin/Hierarchical_techno_generation_ATIAM/main"
+path_dataset = "/fast-1/atiam/hierarchical_vae/techno_resampled.dat"
+############################################################# A MODIF #########################
+
+
+# Definit le device sur lequel on va train
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Permet de load toute la configuration
-main_config = config.load_config(f"{path_main}/config.yaml")
+main_config = configs.config.load_config("{}/config.yaml".format(path_main))
 
 # Import du dataset
-train_loader,valid_loader = dataset.Create_Dataset(dataset_dir=f"{path_main}/dataset/techno_resampled.dat",valid_ratio =main_config.dataset.valid_ratio,num_threads =main_config.dataset.num_thread,batch_size=main_config.dataset.batch_size)
+train_loader,valid_loader = dataset.Create_Dataset(dataset_dir=path_dataset,valid_ratio =main_config.dataset.valid_ratio,num_threads =main_config.dataset.num_thread,batch_size=main_config.dataset.batch_size)
 
-# Création session tensorboard et save de la config
-checkpoint = f"{main_config.vae_raw.model_name}"
-writer = SummaryWriter(f'{path_main}/runs/' + checkpoint)
+# Creation session tensorboard et save de la config
+checkpoint = "{}".format(main_config.vae_raw.model_name)
+writer = SummaryWriter("{}/runs/".format(path_main) + checkpoint)
 
 
 writer.add_text('VAE_raw_parameters', str(main_config.vae_raw))
@@ -28,9 +36,9 @@ writer.add_text('Dataset_config', str(main_config.dataset))
 
 
 # Save le config file pour pouvoir le rouvrir par la suite (save dans le dossier de logs runs/model_name)
-config_path = f"{path_main}/runs/{main_config.vae_raw.model_name}"
-config_name = f"{config_path}/{main_config.vae_raw.model_name}_train_config.yaml"
-config.save_config(main_config , config_name)
+config_path = "{}/runs/{}".format(path_main, main_config.vae_raw.model_name)   #f"{path_main}/runs/{main_config.vae_raw.model_name}"        
+config_name = "{}/{}_train_config.yaml".format(config_path, main_config.vae_raw.model_name)     #f"{config_path}/{main_config.vae_raw.model_name}_train_config.yaml"
+configs.config.save_config(main_config , config_name)
 
 
 encoder = models.Encoder.Encoder(main_config.vae_raw.in_channels,

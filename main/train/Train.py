@@ -18,7 +18,7 @@ class train_VAE(nn.Module):
         self.model = model
         self.lr = lr
         self.path_main = path_main
-        self.trained_model_path = f"{self.path_main}/trained_models/{model_name}.pt"
+        self.trained_model_path = "{}/trained_models/{}.pt".format(self.path_main, model_name)
         self.writer = writer
         self.num_epochs = num_epochs
         self.latent_dim = latent_dim
@@ -83,10 +83,12 @@ class train_VAE(nn.Module):
                 loss += loss_add
                 kl_div += kl_div_add
                 recons_loss += recons_loss_add # diviser par le nombre de batch
-
+            loss = loss/len(self.train_loader)
+            kl_div = kl_div/len(self.train_loader)
+            recons_loss = recons_loss/len(self.train_loader)
             # add loss in tensorboard 
             
-            print(f"Epoch: {epoch+1} Loss tot.: {loss}, kl : {torch.abs(kl_div)}")
+            print("Epoch : {}, Loss tot : {}, kl : {}".format(epoch+1, loss, torch.abs(kl_div))) #f"Epoch: {epoch+1} Loss tot.: {loss}, kl : {torch.abs(kl_div)}"
             self.writer.add_scalar("Loss/KL_div", torch.abs(kl_div), epoch)
             self.writer.add_scalar("Loss/Spectral_Loss", recons_loss, epoch)
             self.writer.add_scalar("Loss/Loss", loss, epoch)
@@ -125,16 +127,6 @@ class train_VAE(nn.Module):
                         ax[i].legend()
 
                 plt.tight_layout()
-                #plt.show()
-
-                """ figure = plt.figure()
-                
-                    ax = plt.subplot(nb_images, nb_images, i+1)
-                    plt.plot(temps, samples[i][0,:],label = "Origin")
-                    plt.plot(temps, samples_rec[i][0,:],label = "Reconstruct")
-                    plt.title(f"Son {i+1}")
-                    plt.xlabel("time (s)")
-                plt.tight_layout() """
 
                 self.writer.add_figure("Waveform", figure, epoch)
 
