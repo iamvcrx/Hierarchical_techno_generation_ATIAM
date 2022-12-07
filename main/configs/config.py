@@ -26,6 +26,7 @@ class Train(BaseModel):
     epochs: int 
     save_ckpt: int = 5
     add_fig_sound: int = 5
+    loss: str = "MSE"
 
     
 

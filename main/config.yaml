@@ -11,7 +11,7 @@ vae_raw:
   - 32
   - 64
   - 128
-  model_name : "Test ref Loss MSE + L1"
+  model_name : "Test changement loss type"
 
 dataset:
   batch_size: 64
@@ -24,9 +24,12 @@ train:
   n_fft_l : 
   - 4096
   - 2048
+  - 1024
   - 512
   - 256
+  - 128
   w : "Hamming"
-  epochs: 51
+  epochs: 101
   save_ckpt: 5
   add_fig_sound: 5
+  loss: "MSE"

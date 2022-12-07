@@ -8,7 +8,7 @@ import librosa
 import librosa.display
 
 class train_VAE(nn.Module):
-    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound): #, add_loss, add_figure
+    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound,loss): #, add_loss, add_figure
         super(train_VAE, self).__init__()
 
         self.w = w
@@ -25,6 +25,7 @@ class train_VAE(nn.Module):
         #self.add_loss = add_loss
         self.add_figure_sound = add_figure_sound
         self.save_ckpt = save_ckpt
+        self.loss = loss
 
 
 
@@ -53,7 +54,7 @@ class train_VAE(nn.Module):
 
     def compute_loss(self,x,device): 
         y_pred,kl_div = self.model(x)
-        recons_loss = Spectral_Loss(y_pred,x,n_fft_l=self.n_fft_l,w=self.w,device=device)
+        recons_loss = Spectral_Loss(y_pred,x,n_fft_l=self.n_fft_l,w=self.w,loss = self.loss,device=device)
         full_loss = recons_loss - kl_div*self.beta
         return kl_div,recons_loss,full_loss
 
