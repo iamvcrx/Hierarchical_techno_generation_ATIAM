@@ -43,12 +43,12 @@ def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",device='cpu'):
         for j, x_sample in enumerate(x) :
             X_xample = torch.stft(x_sample, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
             lX_sample = torch.log(torch.abs(X_xample)**2 + 1)
-            lX[j]=lX_sample
+            lX[j] = lX_sample
     
         for j, y_sample in enumerate(y):
             Y_xample = torch.stft(y_sample, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
             lY_sample = torch.log(torch.abs(Y_xample)**2 + 1)
-            lY[j]=lY_sample
+            lY[j] = lY_sample
 
 
         recons_criterion = nn.MSELoss(reduction="none")
