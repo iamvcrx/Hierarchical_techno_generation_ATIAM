@@ -8,7 +8,7 @@ import librosa
 import librosa.display
 
 class train_VAE(nn.Module):
-    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound,loss): #, add_loss, add_figure
+    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound,loss,device): #, add_loss, add_figure
         super(train_VAE, self).__init__()
 
         self.w = w
@@ -26,6 +26,7 @@ class train_VAE(nn.Module):
         self.add_figure_sound = add_figure_sound
         self.save_ckpt = save_ckpt
         self.loss = loss
+        self.device = device
 
 
 
@@ -52,28 +53,27 @@ class train_VAE(nn.Module):
  
         return optimizer
 
-    def compute_loss(self,x,device): 
+    def compute_loss(self,x): 
         y_pred,kl_div = self.model(x)
-        recons_loss = Spectral_Loss(y_pred,x,n_fft_l=self.n_fft_l,w=self.w,loss = self.loss,device=device)
+        recons_loss = Spectral_Loss(y_pred,x,n_fft_l=self.n_fft_l,w=self.w,loss = self.loss,device=self.device)
         full_loss = recons_loss - kl_div*self.beta
         return kl_div,recons_loss,full_loss
 
 
     def train_step(self):
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         optimizer, start_epoch = self.load_checkpoint()
         print("Optimizer, ok")
 
         for epoch in range(start_epoch, start_epoch + self.num_epochs):
             
-            loss = torch.Tensor([0]).to(device)
-            kl_div = torch.Tensor([0]).to(device)
-            recons_loss = torch.Tensor([0]).to(device)
+            loss = torch.Tensor([0]).to(self.device)
+            kl_div = torch.Tensor([0]).to(self.device)
+            recons_loss = torch.Tensor([0]).to(self.device)
             for n, x in enumerate(self.train_loader):
-                x = x.to(device)
+                x = x.to(self.device)
 
                 # Compute the loss.
-                kl_div_add,recons_loss_add,loss_add = self.compute_loss(x, device)
+                kl_div_add,recons_loss_add,loss_add = self.compute_loss(x)
                 # Before the backward pass, zero all of the network gradients
                 optimizer.zero_grad()
                 # Backward pass: compute gradient of the loss with respect to parameters
@@ -89,8 +89,8 @@ class train_VAE(nn.Module):
             recons_loss = recons_loss/len(self.train_loader)
             # add loss in tensorboard 
             
-            print("Epoch : {}, Loss tot : {}, kl : {}".format(epoch+1, loss, torch.abs(kl_div))) #f"Epoch: {epoch+1} Loss tot.: {loss}, kl : {torch.abs(kl_div)}"
-            self.writer.add_scalar("Loss/KL_div", torch.abs(kl_div), epoch)
+            print("Epoch : {}, Loss tot : {}, kl : {}".format(epoch+1, loss, torch.abs(kl_div))) # Multiplicaion par Beta ou non ?
+            self.writer.add_scalar("Loss/KL_div", torch.abs(kl_div), epoch)  # Multiplicaion par Beta ou non ?
             self.writer.add_scalar("Loss/Spectral_Loss", recons_loss, epoch)
             self.writer.add_scalar("Loss/Loss", loss, epoch)
             self.writer.flush()
@@ -111,7 +111,7 @@ class train_VAE(nn.Module):
                 for i,batch_test in enumerate(self.train_loader):
                     if i>0:
                         break
-                batch_test = batch_test.to(device)
+                batch_test = batch_test.to(self.device)
                 predictions,_ = self.model(batch_test)
                 samples_rec = predictions[0:nb_images,:].cpu().detach().numpy()
                 samples = batch_test[0:nb_images,:].cpu().detach().numpy()

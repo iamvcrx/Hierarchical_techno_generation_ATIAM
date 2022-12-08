@@ -35,7 +35,8 @@ def Create_Dataset(dataset_dir = "./data/TECHNO/techno_resampled.dat", valid_rat
     nb_train = int((1.0 - valid_ratio) * len(train_valid_dataset) +1)
     nb_valid =  int(valid_ratio * len(train_valid_dataset))
 
-    train_dataset, valid_dataset = torch.utils.data.dataset.random_split(train_valid_dataset, [nb_train, nb_valid])
+
+    train_dataset, valid_dataset = torch.utils.data.dataset.random_split(train_valid_dataset, [nb_train, nb_valid],generator = torch.Generator().manual_seed(42))
 
 
     # Prepare 

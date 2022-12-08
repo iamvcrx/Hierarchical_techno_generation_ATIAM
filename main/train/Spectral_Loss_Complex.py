@@ -56,7 +56,7 @@ def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",loss = "MSE",devic
         if loss == "L1":
             recons_criterion = nn.L1Loss(reduction="none")
             spectral_loss = recons_criterion(lX,lY).sum(1).mean()
-        if loss == "MSE + L1":
+        if loss == "MSE_L1":
             recons_criterion_MSE = nn.MSELoss(reduction="none")
             recons_criterion_L1 = nn.L1Loss(reduction="none")
             spectral_loss = recons_criterion_MSE(lX,lY).sum(1).mean() + recons_criterion_L1(lX,lY).sum(1).mean()

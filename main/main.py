@@ -1,6 +1,6 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
-
+from torchsummary import summary
 # Import des fichiers du modele
 import configs.config
 import dataset.Techno_Dataset as dataset
@@ -18,6 +18,7 @@ path_dataset = "/fast-1/atiam/hierarchical_vae/techno_resampled.dat"
 
 # Definit le device sur lequel on va train
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.seed(42)
 
 # Permet de load toute la configuration
 main_config = configs.config.load_config("{}/config.yaml".format(path_main))
@@ -53,10 +54,10 @@ decoder = models.Decoder.Decoder(main_config.vae_raw.in_channels,
                                  main_config.vae_raw.n_latent,
                                  main_config.vae_raw.ratios,
                                  main_config.vae_raw.channel_size).to(device)
-                                 
+                       
 model = models.VAE_raw.VAE_raw(encoder,decoder).to(device)
 
-
+print(summary(model,(1,32768)))
 
 
 VAE_train = train.Train.train_VAE(train_loader,
@@ -72,7 +73,8 @@ VAE_train = train.Train.train_VAE(train_loader,
                                   main_config.train.save_ckpt,
                                   path_main=path_main,
                                   add_figure_sound=main_config.train.add_fig_sound,
-                                  loss = main_config.train.loss)
+                                  loss = main_config.train.loss,
+                                  device = device)
 
 VAE_train.train_step()
 
