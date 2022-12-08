@@ -135,6 +135,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 Théo NGUYEN/helper_plot.py
+Théo NGUYEN/VAE_MNIST_model
 
 
 

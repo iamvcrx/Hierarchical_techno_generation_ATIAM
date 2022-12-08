@@ -24,11 +24,11 @@ def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",loss = "MSE",devic
         #print(n_fft)
         n_win= n_fft
         n_hop = int(n_win*0.25)
-        L = int((n_sig - n_win + n_hop)/n_hop)
-        if n_fft%2 == 0 : #si pair
-            I = int(n_fft/2 + 1)
-        else :
-            I = int((n_fft-1)/2+1)
+        #L = int((n_sig - n_win + n_hop)/n_hop)
+        #if n_fft%2 == 0 : #si pair
+        #    I = int(n_fft/2 + 1)
+        #else :
+        #    I = int((n_fft-1)/2+1)
             
 
         if w=="Hamming":
@@ -37,25 +37,30 @@ def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",loss = "MSE",devic
             window = torch.hann_window(n_win).to(device)
 
 
-        lX = torch.zeros([batch_size,I, L], dtype=torch.float64,device=device)
-        lY = torch.zeros([batch_size,I, L], dtype=torch.float64,device=device)
+        #lX = torch.zeros([batch_size,I, L], dtype=torch.float64,device=device)
+        #lY = torch.zeros([batch_size,I, L], dtype=torch.float64,device=device)
 
-        for j, x_sample in enumerate(x) :
-            X_xample = torch.stft(x_sample, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
-            lX_sample = torch.log(torch.abs(X_xample)**2 + 1)
-            lX[j]=lX_sample
+        #for j, x_sample in enumerate(x) :
+        #    X_xample = torch.stft(x_sample, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
+        #    lX_sample = torch.log(torch.abs(X_xample)**2 + 1)
+        #    lX[j]=lX_sample
     
-        for j, y_sample in enumerate(y):
-            Y_xample = torch.stft(y_sample, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
-            lY_sample = torch.log(torch.abs(Y_xample)**2 + 1)
-            lY[j]=lY_sample
+        #for j, y_sample in enumerate(y):
+        #    Y_xample = torch.stft(y_sample, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
+        #    lY_sample = torch.log(torch.abs(Y_xample)**2 + 1)
+        #    lY[j]=lY_sample
+
+        lX = torch.stft(x, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
+        lY = torch.stft(y, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False)
 
         if loss == "MSE":
             recons_criterion = nn.MSELoss(reduction="none")
             spectral_loss = recons_criterion(lX,lY).sum(1).mean()
+
         if loss == "L1":
             recons_criterion = nn.L1Loss(reduction="none")
             spectral_loss = recons_criterion(lX,lY).sum(1).mean()
+            
         if loss == "MSE_L1":
             recons_criterion_MSE = nn.MSELoss(reduction="none")
             recons_criterion_L1 = nn.L1Loss(reduction="none")
