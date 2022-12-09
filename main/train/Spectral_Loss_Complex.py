@@ -52,6 +52,8 @@ def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",loss = "MSE",devic
 
         lX = torch.stft(x, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False) #, center=True, pad_mode='reflect', normalized=False, onesided=None, return_complex=None
         lY = torch.stft(y, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False)
+        lX = torch.log(torch.abs(lX) ** 2 + 1)
+        lY = torch.log(torch.abs(lY) ** 2 + 1)
 
         if loss == "MSE":
             recons_criterion = nn.MSELoss(reduction="none")
