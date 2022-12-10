@@ -15,7 +15,7 @@ vae_raw:
 
 dataset:
   batch_size: 64
-  valid_ratio: 0.05
+  valid_ratio: 0.99
   num_thread: 0
 
 train:

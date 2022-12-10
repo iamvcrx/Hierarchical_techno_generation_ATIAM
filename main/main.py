@@ -18,7 +18,6 @@ path_dataset = "/fast-1/atiam/hierarchical_vae/techno_resampled.dat"
 
 # Definit le device sur lequel on va train
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-torch.seed(42)
 
 # Permet de load toute la configuration
 main_config = configs.config.load_config("{}/config.yaml".format(path_main))
