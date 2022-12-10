@@ -56,8 +56,9 @@ decoder = models.Decoder.Decoder(main_config.vae_raw.in_channels,
                        
 model = models.VAE_raw.VAE_raw(encoder,decoder).to(device)
 
+print("\n")
 print(summary(model,(1,32768)))
-
+print("\n")
 
 VAE_train = train.Train.train_VAE(train_loader,
                                   model,
@@ -73,7 +74,8 @@ VAE_train = train.Train.train_VAE(train_loader,
                                   path_main=path_main,
                                   add_figure_sound=main_config.train.add_fig_sound,
                                   loss = main_config.train.loss,
-                                  device = device)
+                                  device = device,
+                                  valid_loader = valid_loader)
 
 VAE_train.train_step()
 

@@ -8,7 +8,7 @@ import librosa
 import librosa.display
 
 class train_VAE(nn.Module):
-    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound,loss,device): #, add_loss, add_figure
+    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound,loss,device,valid_loader): #, add_loss, add_figure
         super(train_VAE, self).__init__()
 
         self.w = w
@@ -27,6 +27,7 @@ class train_VAE(nn.Module):
         self.save_ckpt = save_ckpt
         self.loss = loss
         self.device = device
+        self.valid_loader = valid_loader
 
 
 
@@ -66,6 +67,7 @@ class train_VAE(nn.Module):
 
         for epoch in range(start_epoch, start_epoch + self.num_epochs):
             
+            ################## Train ####################
             loss = torch.Tensor([0]).to(self.device)
             kl_div = torch.Tensor([0]).to(self.device)
             recons_loss = torch.Tensor([0]).to(self.device)
@@ -89,8 +91,8 @@ class train_VAE(nn.Module):
             recons_loss = recons_loss/len(self.train_loader)
             # add loss in tensorboard 
             
-            print("Epoch : {}, Loss tot : {}, kl : {}".format(epoch+1, loss, torch.abs(kl_div))) # Multiplicaion par Beta ou non ?
-            self.writer.add_scalar("Loss/KL_div", torch.abs(kl_div), epoch)  # Multiplicaion par Beta ou non ?
+            print("Epoch : {}, Loss tot : {}, kl : {}".format(epoch+1, loss, torch.abs(kl_div))) 
+            self.writer.add_scalar("Loss/KL_div", torch.abs(kl_div), epoch) 
             self.writer.add_scalar("Loss/Spectral_Loss", recons_loss, epoch)
             self.writer.add_scalar("Loss/Loss", loss, epoch)
             self.writer.flush()
@@ -105,10 +107,20 @@ class train_VAE(nn.Module):
                 torch.save(checkpoint, self.trained_model_path)
 
 
+            ##################### Valid ################################
+            valid_loss = torch.Tensor([0]).to(self.device)
+            for n, x in enumerate(self.valid_loader):
+                x = x.to(self.device)
+                with torch.no_grad():
+                    _,_, valid_loss_add = self.compute_loss(x)
+                valid_loss += valid_loss_add
+            valid_loss = valid_loss/len(self.valid_loader)
+            self.writer.add_scalar("Loss/Valid_Loss", valid_loss, epoch)
+
             if epoch%self.add_figure_sound == 0:
                 # Save checkpoint if the model (to prevent training problem)
-                nb_images = 2
-                for i,batch_test in enumerate(self.train_loader):
+                nb_images = 3
+                for i,batch_test in enumerate(self.valid_loader):
                     if i>0:
                         break
                 batch_test = batch_test.to(self.device)
@@ -116,7 +128,7 @@ class train_VAE(nn.Module):
                 samples_rec = predictions[0:nb_images,:].cpu().detach().numpy()
                 samples = batch_test[0:nb_images,:].cpu().detach().numpy()
                 Fe = len(samples_rec[0][0])//2
-                temps = np.arange(len(samples_rec[0][0]))/Fe
+                #temps = np.arange(len(samples_rec[0][0]))/Fe
 
                 figure, ax = plt.subplots(nrows=nb_images, sharex=True)
                 for i in range(nb_images):
@@ -141,29 +153,12 @@ class train_VAE(nn.Module):
                 self.writer.add_audio("Sound_2/Original sound", origin1, epoch,sample_rate=Fe)
                 self.writer.add_audio("Sound_2/Reconstructed sound", reconstructed1, epoch,sample_rate=Fe)
 
+                origin2 = np.array(samples[2][0,:]/np.max(np.abs(samples[2][0,:])),dtype=np.float32)
+                reconstructed2 = np.array(samples_rec[2][0,:]/np.max(np.abs(samples_rec[2][0,:])),dtype=np.float32)
+                self.writer.add_audio("Sound_3/Original sound", origin2, epoch,sample_rate=Fe)
+                self.writer.add_audio("Sound_3/Reconstructed sound", reconstructed2, epoch,sample_rate=Fe)
+
                 self.writer.flush()
-
-
-            """ if n == self.add_loss:
-                print(f"Epoch: {epoch} Loss tot.: {loss}, kl : {kl_div}")
-                self.writer.add_scalar("Loss/KL_div", kl_div, epoch)
-                self.writer.add_scalar("Loss/Spectral_Loss", recons_loss, epoch)
-                self.writer.add_scalar("Loss/Loss", loss, epoch)
-                self.writer.flush()
-                    
-
-                figure = plt.figure()
-                for i in range(16):
-                    ax = plt.subplot(4, 4, i+1)
-                    plt.imshow(generated_samples[i].reshape(28, 28), cmap='gray_r')
-                    plt.title("label: " + str(mnist_labels[i].cpu().detach().numpy()))
-                    plt.xticks([])
-                    plt.yticks([])
-                plt.tight_layout()
-
-                self.writer.add_figure("4_mnist_images", figure, epoch)
-                self.writer.flush()
-                """
 
                 
 
