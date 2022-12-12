@@ -134,9 +134,23 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Théo
 Théo NGUYEN/helper_plot.py
 Théo NGUYEN/VAE_MNIST_model
-
+Théo NGUYEN/SING - Symbol to Instrument Neural Generator.pdf
+Théo NGUYEN/Wasserstein Auto-Encoders.pdf
+techno_resampled.dat
+Théo NGUYEN/config.yaml
+Théo NGUYEN/main.py
+Théo NGUYEN/VAE_test sur Dataset.ipynb
+Théo NGUYEN/configs/config.py
+Théo NGUYEN/dataset/Techno_Dataset.py
+Théo NGUYEN/models/Decoder.py
+Théo NGUYEN/models/Encoder.py
+Théo NGUYEN/models/VAE_raw.py
+Théo NGUYEN/train/Spectral_Loss_Complex.py
+Théo NGUYEN/train/Train.py
 
 
 # Quentin
@@ -146,3 +160,14 @@ Quentin_Le_Gall/main/Test.py
 main/dataset/techno_resampled.dat
 main/Debuger.ipynb
 main/Test.py
+
+Théo NGUYEN/main/config.yaml
+Théo NGUYEN/main/configs/config.py
+Théo NGUYEN/main/dataset/Techno_Dataset.py
+Théo NGUYEN/main/models/Decoder.py
+Théo NGUYEN/main/models/Encoder.py
+Théo NGUYEN/main/models/VAE_raw.py
+Théo NGUYEN/main/train/Spectral_Loss_Complex.py
+Théo NGUYEN/main/train/Train.py
+Théo NGUYEN/10a_variational_auto_encoders.ipynb
+Théo NGUYEN/main/Debugger.ipynb
