@@ -1,1 +1,3 @@
-# Hierarchical_techno_generation_ATIAM
+# A hierarchical approach to techno loop generation
+
+Projet Master ATIAM 2022/2023 : en cours...
