@@ -18,7 +18,7 @@ class train_VAE(nn.Module):
         self.model = model
         self.lr = lr
         self.path_main = path_main
-        self.trained_model_path = "{}/trained_models/{}.pt".format(self.path_main, model_name)
+        self.trained_model_path = "{}/runs/{}/{}.pt".format(self.path_main, model_name,model_name)
         self.writer = writer
         self.num_epochs = num_epochs
         self.latent_dim = latent_dim
@@ -108,6 +108,7 @@ class train_VAE(nn.Module):
 
 
             ##################### Valid ################################
+            counter = torch.Tensor([0]).to(self.device)
             valid_loss = torch.Tensor([0]).to(self.device)
             for n, x in enumerate(self.valid_loader):
                 x = x.to(self.device)
@@ -117,6 +118,23 @@ class train_VAE(nn.Module):
             valid_loss = valid_loss/len(self.valid_loader)
             self.writer.add_scalar("Loss/Valid_Loss", valid_loss, epoch)
 
+            if epoch==start_epoch:
+                old_valid = valid_loss
+                min_valid = valid_loss
+            if valid_loss < min_valid:
+                min_valid = valid_loss
+            if old_valid < valid_loss:
+                counter += 1
+            else :                                # Counter to kill training in case of overfitting
+                counter = 0
+            if counter >= 10 or valid_loss >= 1.5*min_valid:
+                print("Overfitting, train stopped")
+                break
+
+
+            old_valid = valid_loss
+
+            ##################### Visu #############################
             if epoch%self.add_figure_sound == 0:
                 # Save checkpoint if the model (to prevent training problem)
                 nb_images = 3
@@ -128,7 +146,6 @@ class train_VAE(nn.Module):
                 samples_rec = predictions[0:nb_images,:].cpu().detach().numpy()
                 samples = batch_test[0:nb_images,:].cpu().detach().numpy()
                 Fe = len(samples_rec[0][0])//2
-                #temps = np.arange(len(samples_rec[0][0]))/Fe
 
                 figure, ax = plt.subplots(nrows=nb_images, sharex=True)
                 for i in range(nb_images):
