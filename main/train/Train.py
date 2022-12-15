@@ -8,7 +8,22 @@ import librosa
 import librosa.display
 
 class train_VAE(nn.Module):
-    def __init__(self, train_loader, model, writer, latent_dim,w, lr,n_fft_l, beta, model_name, num_epochs, save_ckpt,path_main,add_figure_sound,loss,device,valid_loader): #, add_loss, add_figure
+    def __init__(self, 
+                 train_loader, 
+                 model, writer, 
+                 latent_dim,
+                 w, 
+                 lr,
+                 n_fft_l, 
+                 beta, 
+                 model_name, 
+                 num_epochs, 
+                 save_ckpt,
+                 path_main,
+                 add_figure_sound,
+                 loss,
+                 device,
+                 valid_loader):
         super(train_VAE, self).__init__()
 
         self.w = w
@@ -19,6 +34,7 @@ class train_VAE(nn.Module):
         self.lr = lr
         self.path_main = path_main
         self.trained_model_path = "{}/runs/{}/{}.pt".format(self.path_main, model_name,model_name)
+        self.best_trained_model_path = "{}/runs/{}/{}_best.pt".format(self.path_main, model_name,model_name)
         self.writer = writer
         self.num_epochs = num_epochs
         self.latent_dim = latent_dim
@@ -67,38 +83,44 @@ class train_VAE(nn.Module):
 
         for epoch in range(start_epoch, start_epoch + self.num_epochs):
             
-            ################## Train ####################
+            ################## Training loop ####################
             loss = torch.Tensor([0]).to(self.device)
-            kl_div = torch.Tensor([0]).to(self.device)
+            kl_div = torch.Tensor([0]).to(self.device)          # Initialization
             recons_loss = torch.Tensor([0]).to(self.device)
+
             for n, x in enumerate(self.train_loader):
                 x = x.to(self.device)
-
                 # Compute the loss.
                 kl_div_add,recons_loss_add,loss_add = self.compute_loss(x)
+
                 # Before the backward pass, zero all of the network gradients
                 optimizer.zero_grad()
+
                 # Backward pass: compute gradient of the loss with respect to parameters
                 loss_add.backward()
+
                 # Calling the step function to update the parameters
                 optimizer.step()
-                #return loss
+
+                # Somme des loss sur tous les batches
                 loss += loss_add
                 kl_div += kl_div_add
-                recons_loss += recons_loss_add # diviser par le nombre de batch
+                recons_loss += recons_loss_add
+
+            # Normalisation par le nombre de batch
             loss = loss/len(self.train_loader)
-            kl_div = kl_div/len(self.train_loader)
+            kl_div = kl_div/len(self.train_loader)   
             recons_loss = recons_loss/len(self.train_loader)
-            # add loss in tensorboard 
-            
+
+            # Add loss in tensorboard 
             print("Epoch : {}, Loss tot : {}, kl : {}".format(epoch+1, loss, torch.abs(kl_div))) 
             self.writer.add_scalar("Loss/KL_div", torch.abs(kl_div), epoch) 
             self.writer.add_scalar("Loss/Spectral_Loss", recons_loss, epoch)
             self.writer.add_scalar("Loss/Loss", loss, epoch)
             self.writer.flush()
-            # save wheckpoint
+
+            # Save checkpoint
             if epoch%self.save_ckpt == 0:
-                # Save checkpoint if the model (to prevent training problem)
                 checkpoint = {
                     "epoch": epoch + 1,
                     "VAE_model" : self.model.state_dict(),
@@ -110,6 +132,7 @@ class train_VAE(nn.Module):
             ##################### Valid ################################
             counter = torch.Tensor([0]).to(self.device)
             valid_loss = torch.Tensor([0]).to(self.device)
+            
             for n, x in enumerate(self.valid_loader):
                 x = x.to(self.device)
                 with torch.no_grad():
@@ -118,25 +141,33 @@ class train_VAE(nn.Module):
             valid_loss = valid_loss/len(self.valid_loader)
             self.writer.add_scalar("Loss/Valid_Loss", valid_loss, epoch)
 
+            # Stopping criterion
             if epoch==start_epoch:
                 old_valid = valid_loss
                 min_valid = valid_loss
             if valid_loss < min_valid:
                 min_valid = valid_loss
+                counter = 0
+                # Save best checkpoint
+                checkpoint = {
+                    "epoch": epoch + 1,
+                    "VAE_model" : self.model.state_dict(),
+                    "optimizer": optimizer.state_dict(),
+                }
+                torch.save(checkpoint, self.best_trained_model_path)
+
             if old_valid < valid_loss:
                 counter += 1
-            else :                                # Counter to kill training in case of overfitting
-                counter = 0
-            if counter >= 10 or valid_loss >= 1.5*min_valid:
+
+            if counter >= 10 :
                 print("Overfitting, train stopped")
                 break
 
-
             old_valid = valid_loss
+
 
             ##################### Visu #############################
             if epoch%self.add_figure_sound == 0:
-                # Save checkpoint if the model (to prevent training problem)
                 nb_images = 3
                 for i,batch_test in enumerate(self.valid_loader):
                     if i>0:

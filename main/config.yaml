@@ -11,23 +11,23 @@ vae_raw:
   - 32
   - 64
   - 128
-  model_name : "Test_Test" # Mettre avec des _ partout
+  model_name : "Test_Beta_Gros_Run" # Mettre avec des _ partout
 
 dataset:
   batch_size: 64
-  valid_ratio: 0.99
+  valid_ratio: 0.05
   num_thread: 0
 
 train:
   lr : 0.0001
-  beta : 10
+  beta : 0.1
   n_fft_l : 
   - 2048
   - 1024
   - 512
   - 256
   w : "Hamming"
-  epochs: 1001
-  save_ckpt: 15
+  epochs: 100001
+  save_ckpt: 30
   add_fig_sound: 5
   loss: "MSE_L1"   # "MSE_L1"/"MSE"/"L1"

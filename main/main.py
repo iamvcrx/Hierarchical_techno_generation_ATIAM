@@ -23,10 +23,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 main_config = configs.config.load_config("{}/config.yaml".format(path_main))
 
 # Import du dataset
-train_loader,valid_loader = dataset.Create_Dataset(dataset_dir=path_dataset,
-                                                   valid_ratio =main_config.dataset.valid_ratio,
-                                                   num_threads =main_config.dataset.num_thread,
-                                                   batch_size=main_config.dataset.batch_size)
+train_loader,valid_loader = dataset.Create_Dataset(dataset_dir= path_dataset,
+                                                   valid_ratio = main_config.dataset.valid_ratio,
+                                                   num_threads = main_config.dataset.num_thread,
+                                                   batch_size = main_config.dataset.batch_size)
 
 # Creation session tensorboard et save de la config
 checkpoint = "{}".format(main_config.vae_raw.model_name)
@@ -39,8 +39,8 @@ writer.add_text('Dataset_config', str(main_config.dataset))
 
 
 # Save le config file pour pouvoir le rouvrir par la suite (save dans le dossier de logs runs/model_name)
-config_path = "{}/runs/{}".format(path_main, main_config.vae_raw.model_name)   #f"{path_main}/runs/{main_config.vae_raw.model_name}"        
-config_name = "{}/{}_train_config.yaml".format(config_path, main_config.vae_raw.model_name)     #f"{config_path}/{main_config.vae_raw.model_name}_train_config.yaml"
+config_path = "{}/runs/{}".format(path_main, main_config.vae_raw.model_name)   
+config_name = "{}/{}_train_config.yaml".format(config_path, main_config.vae_raw.model_name)   
 configs.config.save_config(main_config , config_name)
 
 
@@ -71,8 +71,8 @@ VAE_train = train.Train.train_VAE(train_loader,
                                   main_config.vae_raw.model_name,
                                   main_config.train.epochs,
                                   main_config.train.save_ckpt,
-                                  path_main=path_main,
-                                  add_figure_sound=main_config.train.add_fig_sound,
+                                  path_main = path_main,
+                                  add_figure_sound = main_config.train.add_fig_sound,
                                   loss = main_config.train.loss,
                                   device = device,
                                   valid_loader = valid_loader)

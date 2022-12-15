@@ -2,8 +2,13 @@ import torch
 import torch.nn as nn
 
 
-def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",loss = "MSE",device='cpu'):
-    """Calcul la loss spectrake moyennée sur les différentes valeurs de n_fft
+def Spectral_Loss(x,
+                  y,
+                  n_fft_l = [2048,1024,512,256],
+                  w = "Hamming",
+                  loss = "MSE",
+                  device = 'cpu'):
+    """Calcul la loss spectrale moyennée sur les différentes valeurs de n_fft
 
     Inputs :
     - x : Batch
@@ -42,16 +47,16 @@ def Spectral_Loss(x,y,n_fft_l=[2048,1024,512,256],w="Hamming",loss = "MSE",devic
 
         if loss == "MSE":
             recons_criterion = nn.MSELoss(reduction="none")
-            spectral_loss = recons_criterion(X,Y).sum(1).mean()
+            spectral_loss = recons_criterion(X,Y).mean()
 
         if loss == "L1":
             recons_criterion = nn.L1Loss(reduction="none")
-            spectral_loss = recons_criterion(X,Y).sum(1).mean()
+            spectral_loss = recons_criterion(X,Y).mean()
             
         if loss == "MSE_L1":
             recons_criterion_MSE = nn.MSELoss(reduction="none")
             recons_criterion_L1 = nn.L1Loss(reduction="none")
-            spectral_loss = recons_criterion_MSE(X,Y).sum(1).mean() + recons_criterion_L1(X,Y).sum(1).mean()
+            spectral_loss = recons_criterion_MSE(X,Y).mean() + recons_criterion_L1(X,Y).mean()
 
         
         spectral_loss_tot[i] = spectral_loss
