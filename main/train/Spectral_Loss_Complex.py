@@ -57,6 +57,9 @@ def Spectral_Loss(x,
             recons_criterion_MSE = nn.MSELoss(reduction="none")
             recons_criterion_L1 = nn.L1Loss(reduction="none")
             spectral_loss = recons_criterion_MSE(X,Y).mean() + recons_criterion_L1(X,Y).mean()
+        
+        if loss == "custom":
+            spectral_loss = torch.abs(X - Y).mean()
 
         
         spectral_loss_tot[i] = spectral_loss

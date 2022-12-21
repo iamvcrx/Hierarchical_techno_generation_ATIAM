@@ -73,6 +73,6 @@ class Decoder_hierarchical(nn.Module):
         result = self.decoder(result)
         result = self.final_layer(result)
         mu , sigma = torch.split(result,128,dim=1)
-        sigma = self.sigma(sigma)
+        sigma = self.sigma(sigma + 1e-6)
         result = torch.cat((mu,sigma),dim=1)
         return result

@@ -23,7 +23,7 @@ class VAE_raw(nn.Module):
         eps = torch.rand_like(std)
         z = mu + eps * std
 
-        kl_div = 0.5 * (1 + torch.log(sigma + 1e-6) - mu**2 - sigma).sum(1).mean()
+        kl_div = 0.5 * (1 + torch.log(sigma + 1e-6) - mu**2 - sigma).sum(dim = 1).mean()
         return z, kl_div
 
 

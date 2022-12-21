@@ -189,9 +189,11 @@ class train_VAE_hierarchical(nn.Module):
                 with torch.no_grad():
                     waveform_rec,_ = self.model_raw.latent((mu_rec, sigma_rec))
                     waveform_rec = self.model_raw.decoder(waveform_rec)
+                    waveform_rec_mu = self.model_raw.decoder(mu_rec)
                 
                 ori_samples = waveform_ori[0:nb_images,:].cpu().detach().numpy()
                 rec_samples = waveform_rec[0:nb_images,:].cpu().detach().numpy()
+                rec_samples_mu = waveform_rec_mu[0:nb_images,:].cpu().detach().numpy()
                 Fe = len(rec_samples[0][0])//2
 
 
@@ -203,6 +205,7 @@ class train_VAE_hierarchical(nn.Module):
                     # ax[i].plot(rec_samples[i],color='r', alpha=0.5, label='Reconstructed')
                     librosa.display.waveshow(ori_samples[i][0,:], sr=Fe, alpha=0.9, ax=ax[i], label='VAE 1')
                     librosa.display.waveshow(rec_samples[i][0,:], sr=Fe, color='r', alpha=0.5, ax=ax[i], label='VAE 1 + VAE 2')
+                    librosa.display.waveshow(rec_samples_mu[i][0,:], sr=Fe, color='orange', alpha=0.5, ax=ax[i], label='VAE 1 + mu VAE 2')
                     ax[i].set(title=f'Latent {i+1}')
                     #plt.grid()
                     if i==0:
@@ -215,18 +218,24 @@ class train_VAE_hierarchical(nn.Module):
                 
                 origin = np.array(ori_samples[0][0,:]/np.max(np.abs(ori_samples[0][0,:])),dtype=np.float32)
                 reconstructed = np.array(rec_samples[0][0,:]/np.max(np.abs(rec_samples[0][0,:])),dtype=np.float32)
+                reconstructed_mu = np.array(rec_samples_mu[0][0,:]/np.max(np.abs(rec_samples_mu[0][0,:])),dtype=np.float32)
                 self.writer.add_audio("Sound_hierarchical/Sound_1/Only VAE 1", origin, epoch,sample_rate=Fe)
                 self.writer.add_audio("Sound_hierarchical/Sound_1/VAE 1 + VAE 2", reconstructed, epoch,sample_rate=Fe)
+                self.writer.add_audio("Sound_hierarchical/Sound_1/VAE 1 + mu VAE 2", reconstructed_mu, epoch,sample_rate=Fe)
 
                 origin1 = np.array(ori_samples[1][0,:]/np.max(np.abs(ori_samples[1][0,:])),dtype=np.float32)
                 reconstructed1 = np.array(rec_samples[1][0,:]/np.max(np.abs(rec_samples[1][0,:])),dtype=np.float32)
+                reconstructed_mu1 = np.array(rec_samples_mu[1][0,:]/np.max(np.abs(rec_samples_mu[1][0,:])),dtype=np.float32)
                 self.writer.add_audio("Sound_hierarchical/Sound_2/Only VAE 1", origin1, epoch,sample_rate=Fe)
                 self.writer.add_audio("Sound_hierarchical/Sound_2/VAE 1 + VAE 2", reconstructed1, epoch,sample_rate=Fe)
+                self.writer.add_audio("Sound_hierarchical/Sound_2/VAE 1 + mu VAE 2", reconstructed_mu1, epoch,sample_rate=Fe)
 
                 origin2 = np.array(ori_samples[2][0,:]/np.max(np.abs(ori_samples[2][0,:])),dtype=np.float32)
                 reconstructed2 = np.array(rec_samples[2][0,:]/np.max(np.abs(rec_samples[2][0,:])),dtype=np.float32)
+                reconstructed_mu2 = np.array(rec_samples_mu[2][0,:]/np.max(np.abs(rec_samples_mu[2][0,:])),dtype=np.float32)
                 self.writer.add_audio("Sound_hierarchical/Sound_3/Only VAE 1", origin2, epoch,sample_rate=Fe)
                 self.writer.add_audio("Sound_hierarchical/Sound_3/VAE 1 + VAE 2", reconstructed2, epoch,sample_rate=Fe)
+                self.writer.add_audio("Sound_hierarchical/Sound_3/VAE 1 + mu VAE 2", reconstructed_mu2, epoch,sample_rate=Fe)
 
                 self.writer.flush()
 
