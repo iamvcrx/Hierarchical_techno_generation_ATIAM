@@ -73,8 +73,6 @@ train_loader_latent, valid_loader_latent = dataset.Create_Latent_Dataset(dataset
 
 
 
-main_config_hier = config_hierarchical.load_config_hier("./config_hierarchical.yaml")
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model_raw.to(device)
 

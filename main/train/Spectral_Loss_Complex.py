@@ -44,7 +44,7 @@ def Spectral_Loss(x,
         
         Y = torch.stft(y, n_fft, win_length=n_win, window=window,hop_length=n_hop,return_complex=True,center=False)
         Y = torch.log(torch.abs(Y)**2 + 1)
-
+        
         if loss == "MSE":
             recons_criterion = nn.MSELoss(reduction="none")
             spectral_loss = recons_criterion(X,Y).mean()
@@ -56,12 +56,13 @@ def Spectral_Loss(x,
         if loss == "MSE_L1":
             recons_criterion_MSE = nn.MSELoss(reduction="none")
             recons_criterion_L1 = nn.L1Loss(reduction="none")
-            spectral_loss = recons_criterion_MSE(X,Y).mean() + recons_criterion_L1(X,Y).mean()
+            spectral_loss = recons_criterion_MSE(X,Y).sum(dim=2).mean() + recons_criterion_L1(X,Y).sum(dim=2).mean()
         
         if loss == "custom":
             spectral_loss = torch.abs(X - Y).mean()
 
         
         spectral_loss_tot[i] = spectral_loss
+        #print(spectral_loss_tot)
 
     return spectral_loss_tot.mean()

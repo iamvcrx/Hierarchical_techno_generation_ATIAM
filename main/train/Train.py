@@ -159,9 +159,9 @@ class train_VAE(nn.Module):
             if old_valid < valid_loss:
                 counter += 1
 
-            if counter >= 10 :
-                print("Overfitting, train stopped")
-                break
+            # if counter >= 10 :
+            #     print("Overfitting, train stopped")
+            #     break
 
             old_valid = valid_loss
 
@@ -169,9 +169,8 @@ class train_VAE(nn.Module):
             ##################### Visu #############################
             if epoch%self.add_figure_sound == 0:
                 nb_images = 3
-                for i,batch_test in enumerate(self.valid_loader):
-                    if i>0:
-                        break
+                batch_test = next(iter(self.valid_loader))
+                
                 batch_test = batch_test.to(self.device)
                 predictions,_ = self.model(batch_test)
                 samples_rec = predictions[0:nb_images,:].cpu().detach().numpy()

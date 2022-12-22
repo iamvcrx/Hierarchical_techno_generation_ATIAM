@@ -147,12 +147,12 @@ class train_VAE_hierarchical(nn.Module):
                 torch.save(checkpoint, self.best_trained_model_path)
                 ############### Save best checkpoint ################
 
-            if old_valid <= valid_loss:
-                counter += 1
+            # if old_valid <= valid_loss:
+            #     counter += 1
 
-            if counter >= 10 :
-                print("Overfitting, train stopped")
-                break
+            # if counter >= 10 :
+            #     print("Overfitting, train stopped")
+            #     break
 
             old_valid = valid_loss
 
@@ -172,9 +172,10 @@ class train_VAE_hierarchical(nn.Module):
             # Figure 
             if epoch%self.add_figure_sound == 0:
                 nb_images = 3
-                for i, batch_visu in enumerate(self.valid_loader):
-                    if i>1:
-                        break
+                batch_visu = next(iter(self.valid_loader))
+                # for i, batch_visu in enumerate(self.valid_loader):
+                #     if i>1:
+                #         break
                 batch_visu = batch_visu[0].to(self.device)
 
                 # Construction audio sans model 2
@@ -182,6 +183,18 @@ class train_VAE_hierarchical(nn.Module):
                 with torch.no_grad():
                     waveform_ori,_ = self.model_raw.latent((mu, sigma))
                     waveform_ori = self.model_raw.decoder(waveform_ori)
+
+
+
+
+                """ with torch.no_grad() :
+                mu_sigma_raw = model_hier.decoder(torch.from_numpy(z1))
+                mu_raw, sigma_raw = torch.split(mu_sigma_raw, 128, dim=1)
+
+                z_raw, _ = model_raw.latent((mu_raw, sigma_raw))
+                xtilde = model_raw.decoder(z_raw)
+
+                print(xtilde.shape) """
 
                 # Avec les deu modèes
                 recons,_ = self.model_hierarchical(batch_visu)
